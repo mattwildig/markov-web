@@ -22,23 +22,23 @@ module Markov
         raise "Unknown input type for Markov generation: #{input.class}"
       end
       
-      current_prefix = Prefix.new(Array.new(@prefix_length, @sentinel))
+      current_prefix = Array.new(@prefix_length, @sentinel)
       
       words.each do |word|
-        p = Prefix.new(current_prefix.words)
+        p = Array.new(current_prefix)
         @prefix_tab[p] ||= []
         @prefix_tab[p] << word
-        current_prefix.rotate word
+        (current_prefix << word).shift
       end
       
-      p = Prefix.new(current_prefix.words)
+      p = Array.new(current_prefix)
       @prefix_tab[p] ||= []
       @prefix_tab[p] << @sentinel
       
     end
     
     def generate(out = $stdout, number_words = @output_words)
-      current_prefix = Prefix.new(Array.new(@prefix_length, @sentinel))
+      current_prefix = Array.new(@prefix_length, @sentinel)
 
       generated = ""
 
@@ -50,7 +50,7 @@ module Markov
         end
         break if next_word == @sentinel
         generated << next_word << " "
-        current_prefix.rotate(next_word)
+        (current_prefix << next_word).shift
       end
 
       out.puts generated
@@ -66,39 +66,8 @@ module Markov
     
   end
 
-  class Prefix
-  
-    attr :words
-  
-    def initialize(words)
-      @words = Array.new words
-    end
-  
-    def hash
-      @words.inject{|a,b| a + b}.hash
-    end
-  
-    def eql?(other)
-      @words.each_index do |i|
-        return false if @words[i] != other.words[i]
-      end
-      true
-    end
-  
-    def rotate(word)
-      @words.shift
-      @words << word
-    end
-  
-    def to_s
-      @words.join " "
-    end
-  
-  end
-
   if __FILE__ == $0
     Chain.new(ARGF).generate
   end
 
 end
-
