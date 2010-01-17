@@ -25,15 +25,11 @@ module Markov
       current_prefix = Array.new(@prefix_length, @sentinel)
       
       words.each do |word|
-        p = Array.new(current_prefix)
-        @prefix_tab[p] ||= []
-        @prefix_tab[p] << word
+        add_word(current_prefix, word)
         (current_prefix << word).shift
       end
       
-      p = Array.new(current_prefix)
-      @prefix_tab[p] ||= []
-      @prefix_tab[p] << @sentinel
+      add_word(current_prefix, @sentinel)
       
     end
     
@@ -62,6 +58,13 @@ module Markov
     
     def inspect
       to_s
+    end
+    
+    private
+    def add_word(prefix, word)
+      p = Array.new(prefix)
+      @prefix_tab[p] ||= []
+      @prefix_tab[p] << word
     end
     
   end
