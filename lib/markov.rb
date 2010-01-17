@@ -13,7 +13,14 @@ module Markov
       @output_words = options[:output_words] || DEFAULT_OUTPUT_WORDS
       
       @prefix_tab = Hash.new()
-      words = File.read(input).split
+      
+      if input.respond_to? :read
+        words = input.read.split
+      elsif input.kind_of? String
+        words = File.read(input).split
+      else
+        raise "Unknown input type for Markov generation: #{input.class}"
+      end
       
       current_prefix = Prefix.new(Array.new(@prefix_length, @sentinel))
       
