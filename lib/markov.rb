@@ -37,7 +37,7 @@ module Markov
       
     end
     
-    def generate(number_words = @output_words)
+    def generate(out = $stdout, number_words = @output_words)
       current_prefix = Prefix.new(Array.new(@prefix_length, @sentinel))
 
       generated = ""
@@ -53,7 +53,7 @@ module Markov
         current_prefix.rotate(next_word)
       end
 
-      puts generated
+      out.puts generated
     end
     
     def to_s
@@ -96,4 +96,9 @@ module Markov
   
   end
 
+  if __FILE__ == $0
+    Chain.new(ARGF).generate
+  end
+
 end
+
