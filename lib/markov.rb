@@ -40,10 +40,7 @@ module Markov
 
       number_words.times do
         candidates = @prefix_tab[current_prefix]
-        next_word = ""
-        candidates.each_index do |i|
-          next_word = candidates[i] if rand(i + 1) == 0
-        end
+        next_word = candidates[rand(candidates.length)]
         break if next_word == @sentinel
         generated << next_word << " "
         (current_prefix << next_word).shift
