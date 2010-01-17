@@ -12,7 +12,7 @@ module Markov
       @sentinel = options[:sentinel] || DEFAULT_SENTINEL_WORD
       @output_words = options[:output_words] || DEFAULT_OUTPUT_WORDS
       
-      @prefix_tab = Hash.new()
+      @prefix_tab = Hash.new {|hash, key| hash[Array.new(key)] = []}
       
       if input.respond_to? :read
         words = input.read.split
@@ -25,11 +25,11 @@ module Markov
       current_prefix = Array.new(@prefix_length, @sentinel)
       
       words.each do |word|
-        add_word(current_prefix, word)
+        @prefix_tab[current_prefix] << word
         (current_prefix << word).shift
       end
       
-      add_word(current_prefix, @sentinel)
+      @prefix_tab[current_prefix] << @sentinel
       
     end
     
@@ -58,13 +58,6 @@ module Markov
     
     def inspect
       to_s
-    end
-    
-    private
-    def add_word(prefix, word)
-      p = Array.new(prefix)
-      @prefix_tab[p] ||= []
-      @prefix_tab[p] << word
     end
     
   end
