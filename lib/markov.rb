@@ -61,10 +61,6 @@ module Markov
      "Markov::Chain - #{@prefix_tab.length} entries"
     end
     
-    def inspect
-      to_s
-    end
-    
   end
 
   if __FILE__ == $0
