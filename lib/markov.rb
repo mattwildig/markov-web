@@ -41,7 +41,7 @@ module Markov
       
     end
     
-    def generate(out = $stdout, number_words = @options[:output_words])
+    def generate(number_words = @options[:output_words])
       current_prefix = Array.new(@options[:prefix_length], @options[:sentinel])
 
       generated = ""
@@ -54,7 +54,11 @@ module Markov
         generated << next_word << " "
         (current_prefix << next_word).shift
       end
-      out.puts generated
+      generated
+    end
+    
+    def stream(out=$sysout, number_words = @options[:output_words])
+      out.puts(generate(number_words))
     end
     
     def to_s
