@@ -2,24 +2,37 @@
 %html
   %head
     %title Markov
-    %style{:type=>"text/css"}
-      :sass
-        body
-          margin: 40px
-          font-family: sans-serif
-          background-color: #def
-        p
-          line-height: 1.4em
-        .generated  
-          padding: 10px
-          border: 1px dashed black
+    -#%style{:type=>"text/css"}
+    -#  :sass
+    -#    body
+    -#      margin: 40px
+    -#      font-family: sans-serif
+    -#      background-color: #def
+    -#    p
+    -#      line-height: 1.4em
+    -#    .generated  
+    -#      padding: 10px
+    -#      border: 1px dashed black
   %body
     %h1 Markov Chains
-    .generated
-      %h2 Generated text:
-      %p
-        =@txt
-    %p
-      %a{:href=>""} Reload
+    %form{:action=>""}
+      %fieldset
+        %legend Choose sources for generator
+        - MarkovData::Sources.each do |key, title|
+          %label{:for=>key}= title
+          %input{:type=>"checkbox", :id=> key, :name=>"data[]", :value=>key, :checked=> params["data"] && params["data"].include?(key)}
+          %br
+      
+      %label{:for=> 'numwords'} Number of words to generate (max 1000):
+      %input{:id=> 'numwords', :name=>'numwords', :value=>params['numwords'] || '600'}
+      %br
+      %input{:type=>"submit", :name =>'generate', :value=>"Generate!"}
+    -if @txt
+      .generated
+        %h2 Generated text:
+        %p
+          =@txt
+    -elsif params['generate']
+      %p You need to select something!
     %p
       %a{:href=>"http://en.wikipedia.org/wiki/Markov_chain"}Markov Chains on Wikpedia

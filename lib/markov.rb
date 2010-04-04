@@ -17,7 +17,11 @@ module Markov
       @prefix_tab = Hash.new {|hash, key| hash[Array.new(key)] = []}
       
       inputs.each do |input|
-        parse input
+        if input.kind_of? Array
+          input.each{|i| parse i}
+        else
+          parse input
+        end
       end
     end
     
