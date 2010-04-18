@@ -72,7 +72,7 @@ module Markov
   end
 
   if __FILE__ == $0
-    Chain.new(ARGF).generate
+    puts Chain.new(ARGF).generate
   end
 
 end

@@ -6,19 +6,23 @@
 
 static const char* DEFAULT_SENTINEL_WORD = "SENTINEL_WORD";
 static const int DEFAULT_PREFIX_LENGTH = 2;
+static const int DEFAULT_OUTPUT_WORDS = 250;
 static const int DEFAULT_STATE_TABLE_SIZE = 4093; //4093 is from Practice of Programming
 
 typedef struct SuffixNode SuffixNode;
 typedef struct StateNode StateNode;
+typedef struct MarkovData MarkovData;
 
-typedef struct {
+struct MarkovData {
 	int prefix_len;
 	const char* sentinel_word;
 	
 	int statetab_len;
 	StateNode** statetab;
+	
+    char initialized;
 
-} MarkovData;
+};
 
 struct SuffixNode {
 	const char* suffix;
@@ -99,7 +103,23 @@ static void prepopulate_prefix(MarkovData* data, const char** prefix) {
     }
 }
 
-void parse_input(MarkovData* data, FILE* input) {
+static void set_defaults(MarkovData* data) {
+    if (data->statetab_len == 0) data->statetab_len = DEFAULT_STATE_TABLE_SIZE;
+	data->statetab = malloc(sizeof(StateNode*) * DEFAULT_STATE_TABLE_SIZE);
+	
+	if (data->prefix_len == 0) data->prefix_len = DEFAULT_PREFIX_LENGTH;
+	
+	if (data->sentinel_word == NULL) data->sentinel_word = strdup(DEFAULT_SENTINEL_WORD);
+	
+    data->initialized = 1;
+}
+
+void markov_add_input(MarkovData* data, FILE* input) {
+    
+    if (! data->initialized) {
+        set_defaults(data);
+    }
+    
 	const int buf_size = 100;  //TODO: handle possibility of words > 100 chars in length
 	char buf[buf_size];
 
@@ -115,27 +135,43 @@ void parse_input(MarkovData* data, FILE* input) {
         rotate_prefix(data, prefix, word);
 	}
 	
-    add_suffix(data, prefix, data->sentinel_word);
+    add_suffix(data, prefix, strdup(data->sentinel_word));
 }
 
-MarkovData* init_markov() { //TODO: allow defaults to be overridden
+MarkovData* markov_init() { //TODO: allow defaults to be overridden
 	MarkovData* d = malloc(sizeof(MarkovData));	
-	d->statetab = malloc(sizeof(StateNode*) * DEFAULT_STATE_TABLE_SIZE);
-	d->statetab_len = DEFAULT_STATE_TABLE_SIZE;
+    d->statetab_len = 0;
 	
     for (int i = 0; i < d->statetab_len; i++) {
         d->statetab[i] = NULL;
     }
 	
-	d->prefix_len = DEFAULT_PREFIX_LENGTH;
-	d->sentinel_word = DEFAULT_SENTINEL_WORD;
+	d->prefix_len = 0;
+    d->sentinel_word = NULL;
 	
 	//TODO: error checking on mallocs
+	
+    d->initialized = 0;
 	
 	return d;
 }
 
-void dump_table(MarkovData* data) {
+void markov_set_table_size(MarkovData* data, int size) {
+    if (data->initialized) return;
+    data->statetab_len = size;
+}
+
+void markov_set_prefix_len(MarkovData* data, int len) {
+    if (data->initialized) return;
+    data->prefix_len = len;
+}
+
+void markov_set_sentinel_word(MarkovData* data, char* word) {
+    if (data->initialized) return;
+    data->sentinel_word = strdup(word);
+}
+
+void markov_dump_table(MarkovData* data) {
     for (int tab_entry = 0; tab_entry < data->statetab_len; tab_entry++) {        
         for(StateNode* node = data->statetab[tab_entry]; node != NULL; node = node->next){
             for (int i = 0; i < data->prefix_len; i++) {
@@ -150,7 +186,12 @@ void dump_table(MarkovData* data) {
     }
 }
 
-void generate(MarkovData* data, FILE* dest, int max_words) {
+int markov_generate(MarkovData* data, FILE* dest, int max_words) {
+    
+    if (max_words == 0) max_words = DEFAULT_OUTPUT_WORDS;
+    
+    if (! data->initialized) return 1;
+    
     const char* prefix[data->prefix_len];
     prepopulate_prefix(data, prefix);
     
@@ -168,35 +209,37 @@ void generate(MarkovData* data, FILE* dest, int max_words) {
         }
         
         if (strcmp(word, data->sentinel_word) == 0) {
-            return;
+            return 0;
         }
         
         fprintf(dest, "%s ", word);
         
         rotate_prefix(data, prefix, word);
     }
+    return 0;
 }
 
-int main (int argc, char const *argv[])
-{
-	if (argc != 2) {
-        fprintf(stderr, "Usage: %s <filename>\n", argv[0]);
-        exit(1);
+void markov_free(MarkovData* data) {
+    for (int tab_entry = 0; tab_entry < data->statetab_len; tab_entry++) {        
+        for(StateNode* node = data->statetab[tab_entry]; node != NULL;){
+            
+            SuffixNode* suf = node->list;
+            while(suf != NULL) {
+                
+                free((char *)suf->suffix);
+                SuffixNode* next = suf->next;
+                free(suf);
+                suf = next;
+            }
+            
+            
+            StateNode* next = node->next;
+            free(node);
+            node = next;
+        }
     }
     
-    FILE *file;
-    if (! (file = fopen(argv[1], "r"))) {
-        fprintf(stderr, "Error opening file \"%s\": %s\n", argv[1], strerror(errno));
-        exit(2);
-    }
-	
-    MarkovData* d = init_markov();
-    
-    parse_input(d, file);
-    
-    generate(d, stdout, 200);
-    printf("\n");
-    //dump_table(d);
-	
-	return 0;
+    free((char*)data->sentinel_word);
+    free(data->statetab);
+    free(data);
 }
