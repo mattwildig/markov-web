@@ -47,7 +47,7 @@ static VALUE mk_generate(VALUE self, VALUE out) {
         markov_generate(data, GetWriteFile(fptr), 250);
     }
     else {
-        rb_raise(rb_eException, "Unknown input type");
+        rb_raise(rb_eException, "Unknown output type");
     }
 }
 
