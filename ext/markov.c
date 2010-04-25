@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
+#define __USE_BSD
 #include <string.h>
 #include <time.h>
 
@@ -225,7 +226,7 @@ int markov_generate_to_stream(MarkovData* data, FILE* dest, int max_words) {
     while(max_words-- > 0) {
         StateNode* state = lookup_state(data, prefix); //possibly should check for null, but should always exist
         
-        const char* word;
+        const char* word = NULL;
         int count = 0;
         for(SuffixNode* s = state->list; s != NULL; s = s->next) {
             if (rand() % ++count == 0) {
@@ -263,7 +264,7 @@ char* markov_generate_to_string(MarkovData* data, int max_words) {
     while(max_words-- > 0) {
         StateNode* state = lookup_state(data, prefix); //possibly should check for null, but should always exist
         
-        const char* word;
+        const char* word = NULL;
         int count = 0;
         for(SuffixNode* s = state->list; s != NULL; s = s->next) {
             if (rand() % ++count == 0) {

@@ -1,5 +1,5 @@
 require 'mkmf'
 
-$CFLAGS << " -std=c99"
+$CFLAGS << " -Wall -std=c99"
 
 create_makefile("Markov")

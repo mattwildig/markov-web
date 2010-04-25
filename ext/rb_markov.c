@@ -50,6 +50,8 @@ static VALUE mk_generate_to_stream(VALUE self, VALUE out) {
     else {
         rb_raise(rb_eException, "Unknown output type");
     }
+    
+    return Qnil;
 }
 
 static VALUE mk_generate_string(VALUE self) {
