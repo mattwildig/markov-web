@@ -1,6 +1,7 @@
 #include "markov.h"
 #include "ruby.h"
 #include "rubyio.h"
+#include "intern.h"
 
 static void mk_free(void* data) {
     markov_free(data);
@@ -26,8 +27,8 @@ static VALUE mk_add_input(VALUE self, VALUE in) {
         // FILE* file = GetReadFile(RFILE(in)->fptr);
         rb_io_t* fptr;
         GetOpenFile(in, fptr);
-        
-        markov_add_input(data, GetReadFile(fptr));
+                
+        markov_add_input_from_stream(data, GetReadFile(fptr));
     }
     else {
         rb_raise(rb_eException, "Unknown input type");
@@ -36,7 +37,7 @@ static VALUE mk_add_input(VALUE self, VALUE in) {
     return self;
 }
 
-static VALUE mk_generate(VALUE self, VALUE out) {
+static VALUE mk_generate_to_stream(VALUE self, VALUE out) {
     MarkovData* data;
     Data_Get_Struct(self, MarkovData, data);
     
@@ -44,11 +45,23 @@ static VALUE mk_generate(VALUE self, VALUE out) {
         rb_io_t* fptr;
         GetOpenFile(out, fptr);
         
-        markov_generate(data, GetWriteFile(fptr), 250);
+        markov_generate_to_stream(data, GetWriteFile(fptr), 250);
     }
     else {
         rb_raise(rb_eException, "Unknown output type");
     }
+}
+
+static VALUE mk_generate_string(VALUE self) {
+    MarkovData* data;
+    Data_Get_Struct(self, MarkovData, data);
+    
+    char* c_string = markov_generate_to_string(data, 0);
+    
+    VALUE rb_str = rb_str_new2(c_string);
+    free(c_string);
+    
+    return rb_str;
 }
 
 void Init_Markov() {
@@ -57,5 +70,7 @@ void Init_Markov() {
     rb_define_alloc_func(mk_class, mk_alloc);
     rb_define_method(mk_class, "initialize", mk_initialize, 0);
     rb_define_method(mk_class, "add_input", mk_add_input, 1);
-    rb_define_method(mk_class, "generate", mk_generate, 1);
+    rb_define_method(mk_class, "generate_to_stream", mk_generate_to_stream, 1);
+    rb_define_method(mk_class, "generate_string", mk_generate_string, 0);
+    
 }

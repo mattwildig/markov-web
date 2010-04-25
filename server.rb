@@ -1,10 +1,13 @@
 require 'rubygems'
 require 'sinatra'
 require 'haml'
-require 'lib/markov'
+# require 'lib/markov'
 require 'lib/data'
+require 'ext/Markov'
 
 MAX_WORDS = 1000
+
+# set :haml, {:format => :html5 }
 
 before do
   request.env['PATH_INFO'] = '/' if request.env['PATH_INFO'].empty?
@@ -25,7 +28,8 @@ get '/' do
     
     files.compact!
     
-    @txt = Markov::Chain.new(files, :output_words => params['numwords']).generate
+    #@txt = Markov::Chain.new(files, :output_words => params['numwords']).generate
+    @txt = Markov.new.add_input(files[0]).generate_string
     
     files.each{|f| f.close}
   end
