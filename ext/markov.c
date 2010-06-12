@@ -4,6 +4,7 @@
 #define __USE_BSD
 #include <string.h>
 #include <time.h>
+#include <stdbool.h>
 
 static const char* DEFAULT_SENTINEL_WORD = "SENTINEL_WORD";
 static const int DEFAULT_PREFIX_LENGTH = 2;
@@ -48,13 +49,13 @@ static int hash_prefix(MarkovData* d, const char** prefix) {
 	return h % d->statetab_len;
 }
 
-static int prefix_match(const char** prefix1, const char** prefix2, int num_words) {
+static bool prefix_match(const char** prefix1, const char** prefix2, int num_words) {
     for (int i = 0; i < num_words; i++) {
         if (strcmp(prefix1[i], prefix2[i]) != 0) {
-            return 0;
+            return false;
         }
     }
-    return 1;
+    return true;
 }
 
 static StateNode* lookup_state(MarkovData* data, const char** prefix) {
@@ -197,21 +198,6 @@ void markov_set_sentinel_word(MarkovData* data, char* word) {
     data->sentinel_word = strdup(word);
 }
 
-void markov_dump_table(MarkovData* data) {
-    for (int tab_entry = 0; tab_entry < data->statetab_len; tab_entry++) {        
-        for(StateNode* node = data->statetab[tab_entry]; node != NULL; node = node->next){
-            for (int i = 0; i < data->prefix_len; i++) {
-                printf("%s ", node->prefix[i]);
-            }
-            printf("\n\t");
-            for(SuffixNode* suf = node->list; suf != NULL; suf = suf->next) {
-                printf("%s ", suf->suffix);
-            }
-            printf("\n");
-        }
-    }
-}
-
 int markov_generate_to_stream(MarkovData* data, FILE* dest, int max_words) {
     
     if (max_words == 0) max_words = DEFAULT_OUTPUT_WORDS;
@@ -310,7 +296,6 @@ void markov_free(MarkovData* data) {
                 free(suf);
                 suf = next;
             }
-            
             
             StateNode* next = node->next;
             free(node);
