@@ -1,7 +1,6 @@
 #include "markov.h"
 #include "ruby.h"
 #include "rubyio.h"
-#include "intern.h"
 
 static void mk_free(void* data) {
     markov_free(data);
