@@ -1,13 +1,21 @@
 require 'rubygems'
 require 'sinatra'
 require 'haml'
-# require 'lib/markov'
+require 'lib/markov'
 require 'lib/data'
 require 'ext/Markov'
 
 MAX_WORDS = 1000
+DEFAULT_WORDS = 600
 
 # set :haml, {:format => :html5 }
+
+# class Time
+#   def total_usec
+#     to_i * 1000000 + usec
+#   end
+# end
+
 
 before do
   request.env['PATH_INFO'] = '/' if request.env['PATH_INFO'].empty?
@@ -15,7 +23,13 @@ end
 
 get '/' do
   
-  params['numwords'] = [(params['numwords'] && params['numwords'].to_i > 0 && params['numwords'].to_i) || 600, MAX_WORDS].min
+  numwords = params['numwords'] ? params['numwords'].to_i : DEFAULT_WORDS
+  numwords = numwords >= 0 ? numwords : DEFAULT_WORDS
+  numwords = [numwords, MAX_WORDS].min
+  
+  @native = params['impl'] == 'native'
+  
+  impl = @native ? Markov::ChainNative : Markov::Chain
   
   if params['data']
     files = params['data'].collect do |s|
@@ -28,10 +42,14 @@ get '/' do
     
     files.compact!
     
-    #@txt = Markov::Chain.new(files, :output_words => params['numwords']).generate
-    @txt = Markov.new.add_input(files[0]).generate_string
+    start = Time.new
+    @txt = impl.new(files, :output_words => numwords).generate
+    final = Time.new
     
     files.each{|f| f.close}
+    
+    # @usec = final.total_usec - start.total_usec
+    @time = final.to_f - start.to_f
   end
   haml :index
 end

@@ -9,19 +9,14 @@ module Markov
 
   class Chain
     
-    def initialize(*inputs)
+    def initialize(inputs, opts = {})
       
-      opts = inputs.last.kind_of?(Hash) ? inputs.pop : {}
       @options = DEFAULT_OPTIONS.merge(opts)
       
       @prefix_tab = Hash.new {|hash, key| hash[Array.new(key)] = []}
       
       inputs.each do |input|
-        if input.kind_of? Array
-          input.each{|i| parse i}
-        else
           parse input
-        end
       end
     end
     

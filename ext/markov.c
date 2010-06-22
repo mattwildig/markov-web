@@ -18,6 +18,7 @@ typedef struct MarkovData MarkovData;
 struct MarkovData {
 	int prefix_len;
 	const char* sentinel_word;
+    int output_words;
 	
 	int statetab_len;
 	StateNode** statetab;
@@ -116,6 +117,8 @@ static void set_defaults(MarkovData* data) {
 	
 	if (data->sentinel_word == NULL) data->sentinel_word = strdup(DEFAULT_SENTINEL_WORD);
 	
+    if (data->output_words == 0) data->output_words = DEFAULT_OUTPUT_WORDS;
+	
     data->initialized = 1;
 }
 
@@ -172,6 +175,7 @@ void markov_add_input_from_string(MarkovData* data, char* string) {
 MarkovData* markov_init() {
 	MarkovData* d = malloc(sizeof(MarkovData));	
     d->statetab_len = 0;
+    d->output_words = 0;
 	
 	d->prefix_len = 0;
     d->sentinel_word = NULL;
@@ -196,6 +200,11 @@ void markov_set_prefix_len(MarkovData* data, int len) {
 void markov_set_sentinel_word(MarkovData* data, char* word) {
     if (data->initialized) return;
     data->sentinel_word = strdup(word);
+}
+
+void markov_set_output_words(MarkovData* data, int words) {
+    if (data->initialized) return;
+    data->output_words = words;
 }
 
 int markov_generate_to_stream(MarkovData* data, FILE* dest, int max_words) {
@@ -232,10 +241,10 @@ int markov_generate_to_stream(MarkovData* data, FILE* dest, int max_words) {
 }
 
 char* markov_generate_to_string(MarkovData* data, int max_words) {
-    
-    if (max_words == 0) max_words = DEFAULT_OUTPUT_WORDS;
-    
+        
     if (! data->initialized) return NULL;
+    
+    if (max_words == 0) max_words = data->output_words;
     
     const char* prefix[data->prefix_len];
     prepopulate_prefix(data, prefix);

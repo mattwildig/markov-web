@@ -14,7 +14,35 @@ static VALUE mk_alloc(VALUE klass) {
     return obj;
 }
 
-static VALUE mk_initialize(VALUE self) { //TODO: add options
+static VALUE mk_initialize(int argc, VALUE* argv, VALUE self) { 
+    
+    MarkovData* data;
+    Data_Get_Struct(self, MarkovData, data);
+    
+    if (argc == 2) {
+        VALUE opts = argv[1];
+        VALUE num_words = rb_hash_aref(opts, ID2SYM(rb_intern("output_words")));
+        if (RTEST(num_words)) {
+            markov_set_output_words(data, NUM2INT(num_words));
+        }
+    }
+    
+    VALUE* array_data = RARRAY_PTR(argv[0]);
+    int array_len = RARRAY_LEN(argv[0]);
+    
+    for (int i = 0; i<array_len; i++) {
+        VALUE in = array_data[i];
+        if (TYPE(in) == T_FILE) {
+            rb_io_t* fptr;
+            GetOpenFile(in, fptr);
+        
+            markov_add_input_from_stream(data, GetReadFile(fptr));
+        }
+        else {
+            rb_raise(rb_eException, "Unknown input type");
+        }
+    }
+    
     return self;
 }
 
@@ -23,7 +51,6 @@ static VALUE mk_add_input(VALUE self, VALUE in) {
     Data_Get_Struct(self, MarkovData, data);
     
     if (TYPE(in) == T_FILE) {
-        // FILE* file = GetReadFile(RFILE(in)->fptr);
         rb_io_t* fptr;
         GetOpenFile(in, fptr);
                 
@@ -66,12 +93,14 @@ static VALUE mk_generate_string(VALUE self) {
 }
 
 void Init_Markov() {
-    VALUE mk_class = rb_define_class("Markov", rb_cObject);
+    VALUE mk_module = rb_define_module("Markov");
+    
+    VALUE mk_class = rb_define_class_under(mk_module, "ChainNative", rb_cObject);
     
     rb_define_alloc_func(mk_class, mk_alloc);
-    rb_define_method(mk_class, "initialize", mk_initialize, 0);
+    rb_define_method(mk_class, "initialize", mk_initialize, -1);
     rb_define_method(mk_class, "add_input", mk_add_input, 1);
     rb_define_method(mk_class, "generate_to_stream", mk_generate_to_stream, 1);
-    rb_define_method(mk_class, "generate_string", mk_generate_string, 0);
+    rb_define_method(mk_class, "generate", mk_generate_string, 0);
     
 }
