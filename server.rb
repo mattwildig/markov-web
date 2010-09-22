@@ -15,15 +15,6 @@ end
 MAX_WORDS = 1000
 DEFAULT_WORDS = 600
 
-# set :haml, {:format => :html5 }
-
-# class Time
-#   def total_usec
-#     to_i * 1000000 + usec
-#   end
-# end
-
-
 before do
   request.env['PATH_INFO'] = '/' if request.env['PATH_INFO'].empty?
 end
@@ -60,7 +51,6 @@ get '/' do
     
     files.each{|f| f.close}
     
-    # @usec = final.total_usec - start.total_usec
     @time = final.to_f - start.to_f
   end
   haml :index
