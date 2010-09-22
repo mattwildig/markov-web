@@ -1,8 +1,9 @@
-role :server, "wildig.org"
-set :application, "markov"
-set :user, "rails_apps"
+# deploy-settings.rb should set the server role, and the deploy_to var
+# e.g. :
+# role :server, "example.org"
+# set :deploy_to, "/path/to/deploy/dir"
 
-set :deploy_to, "/home/#{user}/sinatra/#{application}"
+load 'deploy-settings.rb'
 
 desc "Deploy the app"
 task :deploy do
