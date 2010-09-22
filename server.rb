@@ -3,7 +3,14 @@ require 'sinatra'
 require 'haml'
 require 'lib/markov'
 require 'lib/data'
-require 'ext/Markov'
+
+begin
+  require 'ext/Markov'
+  @@native_available = true
+rescue LoadError
+  puts "Native implementation not available"
+  @@native_available = false
+end
 
 MAX_WORDS = 1000
 DEFAULT_WORDS = 600
@@ -26,8 +33,13 @@ get '/' do
   numwords = params['numwords'] ? params['numwords'].to_i : DEFAULT_WORDS
   numwords = numwords >= 0 ? numwords : DEFAULT_WORDS
   numwords = [numwords, MAX_WORDS].min
-  
-  @native = params['impl'] == 'native'
+    
+  if @@native_available
+    @native = params['impl'] == 'native'
+    @native_available = true
+  else
+    @native = false
+  end
   
   impl = @native ? Markov::ChainNative : Markov::Chain
   
