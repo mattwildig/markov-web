@@ -19,6 +19,9 @@ static VALUE mk_initialize(int argc, VALUE* argv, VALUE self) {
     MarkovData* data;
     Data_Get_Struct(self, MarkovData, data);
     
+    if (argc == 0) 
+        rb_raise(rb_eArgError, "wrong number of arguments");
+
     if (argc == 2) {
         VALUE opts = argv[1];
         VALUE num_words = rb_hash_aref(opts, ID2SYM(rb_intern("output_words")));
