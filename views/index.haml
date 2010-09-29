@@ -16,14 +16,13 @@
       %label{:for=> 'numwords'} Number of words to generate (max 1000):
       %input{:id=> 'numwords', :name=>'numwords', :value=>params['numwords'] || '600'}
       %br
-      -if @native_available
-        %fieldset
-          %legend Choose generator type
-          %input{:type=>"radio", :name=>'impl', :value=>'ruby', :checked=> !params['impl'] || params['impl'] == 'ruby', :id=>'ruby_gen'}
-          %label{:for=>'ruby_gen'} Ruby
-          %br
-          %input{:type=>"radio", :name=>'impl', :value=>'native', :id=>'native_gen', :checked=> params["impl"] && params["impl"] == 'native'}
-          %label{:for=>'native_gen'} Native (C)
+      %fieldset
+        %legend Choose generator type
+        %input{:type=>"radio", :name=>'impl', :value=>'ruby', :checked=> !params['impl'] || params['impl'] == 'ruby', :id=>'ruby_gen'}
+        %label{:for=>'ruby_gen'} Ruby
+        %br
+        %input{:type=>"radio", :name=>'impl', :value=>'native', :id=>'native_gen', :checked=> params["impl"] && params["impl"] == 'native'}
+        %label{:for=>'native_gen'} Native (C)
 
       %input{:type=>"submit", :name =>'generate', :value=>"Generate!"}
     -if @txt

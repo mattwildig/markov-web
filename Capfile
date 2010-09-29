@@ -8,9 +8,5 @@ load 'deploy-settings.rb'
 desc "Deploy the app"
 task :deploy do
   run "cd #{deploy_to} && git pull"
-  
-  run "cd #{deploy_to}/ext && ruby extconf.rb"
-  run "cd #{deploy_to}/ext && make clean && make"
-  
   run "cd #{deploy_to} && touch tmp/restart.txt"
 end
