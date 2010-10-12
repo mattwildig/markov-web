@@ -3,7 +3,7 @@ require 'sinatra'
 require 'haml'
 require 'markov'
 
-require 'data'
+require './data'
 
 MAX_WORDS = 1000
 DEFAULT_WORDS = 600
