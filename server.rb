@@ -5,6 +5,11 @@ require 'markov'
 
 require './data'
 
+if (RUBY_VERSION == '1.9.2' && __FILE__ == $0 && Sinatra::VERSION =~ /^1.0/)
+  enable :run
+  set :views, File.dirname(__FILE__) + "/views" 
+end
+
 MAX_WORDS = 1000
 DEFAULT_WORDS = 600
 
