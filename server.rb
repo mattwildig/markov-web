@@ -22,7 +22,6 @@ get '/?' do
       begin
         File.new(File.join('data', "#{s}.txt" ))
       rescue Errno::ENOENT
-        nil
       end
     end
     
