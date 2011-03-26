@@ -8,12 +8,7 @@ require './data'
 MAX_WORDS = 1000
 DEFAULT_WORDS = 600
 
-before do
-  request.env['PATH_INFO'] = '/' if request.env['PATH_INFO'].empty?
-end
-
-get '/' do
-  
+get '/?' do
   numwords = params['numwords'] ? params['numwords'].to_i : DEFAULT_WORDS
   numwords = numwords >= 0 ? numwords : DEFAULT_WORDS
   numwords = [numwords, MAX_WORDS].min
