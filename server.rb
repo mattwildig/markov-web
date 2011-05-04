@@ -1,10 +1,11 @@
 require 'rubygems'
 require "bundler/setup"
+
+require 'sinatra'
+require 'haml'
+require 'markov'
+
 require 'yaml'
-
-Bundler.require(:default)
-
-Bundler.require(:development) if ENV['RACK_ENV'] == "development"
 
 configure do
   @@sources = YAML.load_file 'data.yml'
