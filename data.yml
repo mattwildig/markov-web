@@ -1,0 +1,11 @@
+---
+alice:
+  name: Alice in Wonderland 
+  file: alice.txt
+glass:
+  name: Alice through the looking glass
+  file: glass.txt
+scarlet:
+  name: A study in scarlet
+  file: scarlet.txt
+        

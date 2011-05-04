@@ -1,11 +1,14 @@
 require 'rubygems'
 require "bundler/setup"
+require 'yaml'
 
 Bundler.require(:default)
 
 Bundler.require(:development) if ENV['RACK_ENV'] == "development"
 
-require './data'
+configure do
+  @@sources = YAML.load_file 'data.yml'
+end
 
 MAX_WORDS = 1000
 DEFAULT_WORDS = 600
@@ -22,7 +25,7 @@ get '/?' do
   if params['data']
     files = params['data'].collect do |s|
       begin
-        File.new(File.join('data', "#{s}.txt" ))
+        File.new(File.join('data', @@sources[s]['file'] ))
       rescue Errno::ENOENT
       end
     end

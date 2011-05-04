@@ -8,7 +8,8 @@
     %form{:action=>""}
       %fieldset
         %legend Choose sources for generator
-        - MarkovData::Sources.each do |key, title|
+        - @@sources.each do |key, hash|
+          - title = hash['name']
           %label{:for=>key}= title
           %input{:type=>"checkbox", :id=> key, :name=>"data[]", :value=>key, :checked=> params["data"] && params["data"].include?(key)}
           %br
