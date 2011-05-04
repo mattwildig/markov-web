@@ -1,7 +1,9 @@
 require 'rubygems'
-require 'sinatra'
-require 'haml'
-require 'markov'
+require "bundler/setup"
+
+Bundler.require(:default)
+
+Bundler.require(:development) if ENV['RACK_ENV'] == "development"
 
 require './data'
 
